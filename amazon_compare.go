@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/gocolly/colly"
 )
@@ -14,6 +18,7 @@ type item struct {
 }
 
 func main() {
+
 	// var name string
 	// flag.StringVar(&name, "opt", "", "Usage")
 
@@ -46,6 +51,24 @@ func main() {
 		fmt.Println("Visiting", r.URL.String())
 	})
 	c.OnScraped(func(r *colly.Response) {
+		file, err := os.Create("result.csv")
+		checkError("Cannot create file", err)
+		defer file.Close()
+
+		writer := csv.NewWriter(file)
+		defer writer.Flush()
+		for _, value := range m {
+			out, err := json.Marshal(value)
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Println(string(out))
+			var strArray []string
+			strArray = append(strArray, string(out))
+			err = writer.Write(strArray)
+			checkError("Cannot write to file", err)
+		}
 		fmt.Println(m)
 	})
 
@@ -54,4 +77,10 @@ func main() {
 	go c.Visit("https://www.amazon.es/s?k=ps4+pro&__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
 	go c.Visit("https://www.amazon.fr/s?k=ps4+pro&__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
 	c.Visit("https://www.amazon.it/s?k=ps4+pro&__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
+
+}
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
 }
