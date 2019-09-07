@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/gocolly/colly"
 )
 
@@ -24,7 +25,7 @@ func main() {
 	m := make(map[string][]item)
 	var a []item
 	c.OnHTML("span[data-component-type=\"s-search-results\"]", func(e *colly.HTMLElement) {
-		e.ForEach("div.s-result-list.sg-row > div", func(index int, el *colly.HTMLElement)  {
+		e.ForEach("div.s-result-list.sg-row > div", func(index int, el *colly.HTMLElement) {
 			name := el.DOM.Find("span.a-size-medium.a-color-base.a-text-normal").Text()
 			price := el.DOM.Find("div.a-section.a-spacing-none.a-spacing-top-small span.a-price > span.a-offscreen").Text()
 			urls := el.ChildAttr("a.a-link-normal.a-text-normal", "href")
@@ -32,7 +33,7 @@ func main() {
 			product := item{Name: name, Price: price, ProductUrl: urls}
 			if v, found := m[id]; found {
 				m[id] = append(v, product)
-			}else {
+			} else {
 				m[id] = append(a, product)
 
 			}
@@ -48,10 +49,9 @@ func main() {
 		fmt.Println(m)
 	})
 
-	// Start scraping on https://hackerspaces.org
-	c.Visit("https://www.amazon.co.uk/s?k=ps4+pro&ref=nb_sb_noss_1")
-	c.Visit("https://www.amazon.de/s?k=ps4+pro&ref=nb_sb_noss_1")
-	c.Visit("https://www.amazon.es/s?k=ps4+pro&__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
-	c.Visit("https://www.amazon.fr/s?k=ps4+pro&__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
+	go c.Visit("https://www.amazon.co.uk/s?k=ps4+pro&ref=nb_sb_noss_1")
+	go c.Visit("https://www.amazon.de/s?k=ps4+pro&ref=nb_sb_noss_1")
+	go c.Visit("https://www.amazon.es/s?k=ps4+pro&__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
+	go c.Visit("https://www.amazon.fr/s?k=ps4+pro&__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
 	c.Visit("https://www.amazon.it/s?k=ps4+pro&__mk_it_IT=%C3%85M%C3%85%C5%BD%C3%95%C3%91&ref=nb_sb_noss_1")
 }
